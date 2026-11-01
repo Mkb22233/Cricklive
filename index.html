@@ -31,10 +31,12 @@
             font-size: 28px; padding: 15px; width: 100%; max-width: 250px; text-align: center; letter-spacing: 8px; 
             font-weight: bold; border-radius: 12px; border: 2px solid #3b82f6; background: #1e293b; color: white; 
             outline: none; margin-bottom: 20px; text-transform: uppercase;
+            display: none; /* Hidden for auto-connect */
         }
         .btn-connect { 
             background: #10b981; color: white; font-size: 18px; padding: 15px 40px; border: none; 
             border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%; max-width: 250px; 
+            display: none; /* Hidden for auto-connect */
         }
 
         /* Scoreboard UI - Hidden initially */
@@ -97,13 +99,13 @@
     <!-- Screen 1: Connect -->
     <div class="connect-screen" id="connectScreen">
         <h2>LIVE MATCH</h2>
-        <p>Enter the 5-digit Match ID to sync</p>
-        <input type="tel" class="connect-input" id="matchIdInput" placeholder="XXXXX" maxlength="5">
+        <p id="connectingText">Auto-connecting to live stream...</p>
+        <input type="tel" class="connect-input" id="matchIdInput" value="MKBLIVE">
         <button class="btn-connect" onclick="connectToMatch()">WATCH LIVE</button>
-        <div id="statusMsg" style="margin-top: 20px; color: #fbbf24; font-size: 14px; font-weight: bold;"></div>
+        <div id="statusMsg" style="margin-top: 20px; color: #fbbf24; font-size: 14px; font-weight: bold;">Initializing...</div>
     </div>
 
-    <!-- Screen 2: Result Overlay (Hidden until match ends) -->
+    <!-- Screen 2: Result Overlay -->
     <div class="result-overlay" id="resultOverlay">
         <div style="font-size: 18px; color: #fff; margin-bottom: 10px;">MATCH FINISHED</div>
         <div id="resultText">TEAM WON</div>
@@ -157,11 +159,14 @@
 
 <script>
     let client;
+    const FIXED_MATCH_ID = "MKBLIVE"; // Hardcoded fixed ID for automatic connection
+
+    // Auto-connect as soon as the page loads
+    window.onload = function() {
+        connectToMatch();
+    };
 
     function connectToMatch() {
-        const matchId = document.getElementById('matchIdInput').value;
-        if(!matchId) return alert("Please enter Match ID");
-        
         document.getElementById('statusMsg').innerText = "Connecting to Server...";
         
         // Connect to public MQTT WebSocket
@@ -169,7 +174,7 @@
         
         client.on('connect', () => {
             document.getElementById('statusMsg').innerText = "Connected! Loading live score...";
-            client.subscribe(`cricket_global_${matchId}`);
+            client.subscribe(`cricket_global_${FIXED_MATCH_ID}`);
         });
 
         client.on('message', (topic, message) => {
@@ -245,3 +250,10 @@
 </script>
 </body>
 </html>
+<ALOASK-SEPARATE-EDITORS>html {
+   background: linear-gradient(to right, dodgerblue 0%, deepskyblue 100%);
+}
+h1{
+   color: white;
+}
+<ALOASK-SEPARATE-EDITORS>console.log('JavaScript Console');
